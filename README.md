@@ -1,73 +1,202 @@
-# Welcome to your Lovable project
+# 🎓 Uni Cover Craft - University Cover Page Generator
 
-## Project info
+A professional, dynamic React application for generating university project cover pages with PDF and image export capabilities.
 
-**URL**: https://lovable.dev/projects/f94c169c-267d-414c-91d9-cddea0ab1ef1
+## ✨ Features
 
-## How can I edit this code?
+### 📝 Dynamic Content Management
+- **University Information**: Editable university name and logo upload
+- **Document Types**: Support for Project Reports, Assignments, Lab Reports, Thesis, and Dissertations
+- **Course Details**: Dynamic course code, title, and project title fields
+- **Student & Instructor Information**: Complete submission details with dual-column layout
 
-There are several ways of editing your application.
+### 🎨 Professional Design
+- **Academic Color Scheme**: Professional blue and gold theme
+- **Responsive Layout**: Works perfectly on desktop, tablet, and mobile devices
+- **Real-time Preview**: Live preview of cover page as you edit
+- **Clean Typography**: Professional serif fonts with proper hierarchy
 
-**Use Lovable**
+### 📥 Export Options
+- **PDF Export**: High-quality PDF generation using jsPDF
+- **Image Formats**: Export as PNG, JPG, or WebP
+- **High Resolution**: 2x scale for crisp, professional output
+- **Automatic Naming**: Files named based on project title
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/f94c169c-267d-414c-91d9-cddea0ab1ef1) and start prompting.
+### 🎯 Customization
+- **Logo Sizing**: Adjustable logo dimensions
+- **Dynamic Styling**: Professional design system with consistent theming
+- **Form Validation**: Real-time input handling and updates
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🚀 Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
+- Node.js (version 18 or later)
+- npm or yarn package manager
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Installation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+1. **Clone the repository**
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd uni-cover-craft
+   ```
 
-Follow these steps:
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. **Open your browser**
+   Navigate to `http://localhost:8080` to start creating cover pages!
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🛠️ Technology Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+- **Frontend Framework**: React 18 with TypeScript
+- **Build Tool**: Vite for fast development and building
+- **Styling**: Tailwind CSS with custom design system
+- **UI Components**: Radix UI components with shadcn/ui
+- **PDF Generation**: jsPDF for high-quality PDF export
+- **Image Processing**: html2canvas for image export
+- **Icons**: Lucide React for modern icons
+
+## 📋 Usage Guide
+
+1. **Basic Information**
+   - Enter your university name
+   - Upload or adjust the university logo
+   - Set logo dimensions (width/height in pixels)
+   - Select document type from dropdown
+
+2. **Course & Project Details**
+   - Fill in course code and title
+   - Enter your project title
+   - Set submission date
+
+3. **Student Information**
+   - Enter student name, ID, section, and program
+   - Fill in instructor details (name, designation, department)
+
+4. **Generate & Download**
+   - Preview updates in real-time on the right panel
+   - Click download buttons to export as PDF or images
+   - Files are automatically named based on your project title
+
+## 🎨 Design System
+
+The application uses a professional academic design system with:
+- **Primary Colors**: Deep academic blue (#1e40af)
+- **Accent Colors**: Academic gold (#eab308)
+- **Typography**: Serif fonts for professional appearance
+- **Spacing**: Consistent spacing and layout grid system
+- **Shadows**: Professional drop shadows and effects
+
+## 📁 Project Structure
+
+```
+src/
+├── components/
+│   ├── ui/              # Reusable UI components
+│   └── CoverPage.tsx    # Main cover page generator component
+├── pages/
+│   ├── Index.tsx        # Main page
+│   └── NotFound.tsx     # 404 page
+├── assets/
+│   └── university-logo.png  # Default university logo
+├── lib/
+│   └── utils.ts         # Utility functions
+└── styles/
+    └── index.css        # Global styles and design system
 ```
 
-**Edit a file directly in GitHub**
+## 📝 Component API
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### CoverPageData Interface
 
-**Use GitHub Codespaces**
+```typescript
+interface CoverPageData {
+  universityName: string;
+  logoUrl: string;
+  logoWidth: number;
+  logoHeight: number;
+  documentType: string;
+  courseCode: string;
+  courseTitle: string;
+  projectTitle: string;
+  submittedBy: {
+    name: string;
+    id: string;
+    section: string;
+    program: string;
+  };
+  submittedTo: {
+    name: string;
+    designation: string;
+    department: string;
+    university: string;
+  };
+  submissionDate: string;
+  styles: {
+    fontSize: {
+      title: string;
+      heading: string;
+      body: string;
+    };
+    fontFamily: string;
+    primaryColor: string;
+    accentColor: string;
+  };
+}
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎯 Key Features Explained
 
-## What technologies are used for this project?
+### Real-time Preview
+The application provides a live preview of the cover page that updates as you type, allowing you to see exactly how your cover page will look before downloading.
 
-This project is built with:
+### Professional Layout
+The cover page follows academic standards with:
+- University name and logo at the top
+- Document type prominently displayed
+- Course information in the center
+- Two-column layout for student and instructor details
+- Professional typography hierarchy
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Export Quality
+- **PDF Export**: Vector-based output for perfect print quality
+- **Image Export**: High-resolution raster images for digital use
+- **Automatic Scaling**: 2x resolution for crisp output on all devices
 
-## How can I deploy this project?
+## 🔧 Customization
 
-Simply open [Lovable](https://lovable.dev/projects/f94c169c-267d-414c-91d9-cddea0ab1ef1) and click on Share -> Publish.
+### Modifying the Design System
+Edit `src/index.css` to customize:
+- Color schemes
+- Font families
+- Spacing and sizing
+- Shadows and effects
 
-## Can I connect a custom domain to my Lovable project?
+### Adding New Document Types
+Update the Select component in `CoverPage.tsx`:
+```typescript
+<SelectItem value="New Type">New Type</SelectItem>
+```
 
-Yes, you can!
+## 📜 License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+This project is built with React, Vite, and Tailwind CSS. All components are MIT licensed.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🙏 Acknowledgments
+
+- Built with modern React patterns and TypeScript
+- UI components powered by Radix UI and shadcn/ui
+- Professional design inspired by academic document standards
+- Icons provided by Lucide React
+
+---
+
+**Start creating professional cover pages for your university projects today!** 🎓
