@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Download, FileImage, Camera } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -42,6 +43,24 @@ export interface CoverPageData {
     primaryColor: string;
     accentColor: string;
   };
+}
+
+export interface VisibilityState {
+  universityName: boolean;
+  logo: boolean;
+  documentType: boolean;
+  courseCode: boolean;
+  courseTitle: boolean;
+  projectTitle: boolean;
+  submittedByName: boolean;
+  submittedById: boolean;
+  submittedBySection: boolean;
+  submittedByProgram: boolean;
+  submittedToName: boolean;
+  submittedToDesignation: boolean;
+  submittedToDepartment: boolean;
+  submittedToUniversity: boolean;
+  submissionDate: boolean;
 }
 
 const CoverPage: React.FC = () => {
@@ -82,6 +101,24 @@ const CoverPage: React.FC = () => {
     }
   });
 
+  const [visibility, setVisibility] = useState<VisibilityState>({
+    universityName: true,
+    logo: true,
+    documentType: true,
+    courseCode: true,
+    courseTitle: true,
+    projectTitle: true,
+    submittedByName: true,
+    submittedById: true,
+    submittedBySection: true,
+    submittedByProgram: true,
+    submittedToName: true,
+    submittedToDesignation: true,
+    submittedToDepartment: true,
+    submittedToUniversity: true,
+    submissionDate: true,
+  });
+
   const updateCoverData = (path: string, value: any) => {
     setCoverData(prev => {
       const keys = path.split('.');
@@ -96,6 +133,10 @@ const CoverPage: React.FC = () => {
       current[keys[keys.length - 1]] = value;
       return newData;
     });
+  };
+
+  const updateVisibility = (key: keyof VisibilityState, value: boolean) => {
+    setVisibility(prev => ({ ...prev, [key]: value }));
   };
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,14 +203,24 @@ const CoverPage: React.FC = () => {
                 <h2 className="text-heading font-semibold text-primary mb-4">Basic Information</h2>
                 
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="universityName" className="text-sm font-medium">University Name</Label>
-                    <Input
-                      id="universityName"
-                      value={coverData.universityName}
-                      onChange={(e) => updateCoverData('universityName', e.target.value)}
-                      className="mt-1"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="universityName" className="text-sm font-medium">University Name</Label>
+                      <Input
+                        id="universityName"
+                        value={coverData.universityName}
+                        onChange={(e) => updateCoverData('universityName', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-university"
+                        checked={visibility.universityName}
+                        onCheckedChange={(checked) => updateVisibility('universityName', checked as boolean)}
+                      />
+                      <Label htmlFor="show-university" className="text-sm">Show</Label>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -195,41 +246,61 @@ const CoverPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <Label className="text-sm font-medium">University Logo</Label>
-                    <div className="mt-1 flex gap-2">
-                      <Input
-                        ref={logoInputRef}
-                        type="file"
-                        accept="image/*"
-                        onChange={handleLogoUpload}
-                        className="hidden"
+                  <div className="flex items-start gap-3">
+                    <div className="flex-1">
+                      <Label className="text-sm font-medium">University Logo</Label>
+                      <div className="mt-1 flex gap-2">
+                        <Input
+                          ref={logoInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                        />
+                        <Button
+                          variant="outline"
+                          onClick={() => logoInputRef.current?.click()}
+                          className="flex-1"
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          Upload Logo
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-logo"
+                        checked={visibility.logo}
+                        onCheckedChange={(checked) => updateVisibility('logo', checked as boolean)}
                       />
-                      <Button
-                        variant="outline"
-                        onClick={() => logoInputRef.current?.click()}
-                        className="flex-1"
-                      >
-                        <Camera className="w-4 h-4 mr-2" />
-                        Upload Logo
-                      </Button>
+                      <Label htmlFor="show-logo" className="text-sm">Show</Label>
                     </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="documentType" className="text-sm font-medium">Document Type</Label>
-                    <Select value={coverData.documentType} onValueChange={(value) => updateCoverData('documentType', value)}>
-                      <SelectTrigger className="mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Project Report">Project Report</SelectItem>
-                        <SelectItem value="Assignment">Assignment</SelectItem>
-                        <SelectItem value="Lab Report">Lab Report</SelectItem>
-                        <SelectItem value="Thesis">Thesis</SelectItem>
-                        <SelectItem value="Dissertation">Dissertation</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="documentType" className="text-sm font-medium">Document Type</Label>
+                      <Select value={coverData.documentType} onValueChange={(value) => updateCoverData('documentType', value)}>
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Project Report">Project Report</SelectItem>
+                          <SelectItem value="Assignment">Assignment</SelectItem>
+                          <SelectItem value="Lab Report">Lab Report</SelectItem>
+                          <SelectItem value="Thesis">Thesis</SelectItem>
+                          <SelectItem value="Dissertation">Dissertation</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-document-type"
+                        checked={visibility.documentType}
+                        onCheckedChange={(checked) => updateVisibility('documentType', checked as boolean)}
+                      />
+                      <Label htmlFor="show-document-type" className="text-sm">Show</Label>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -240,44 +311,84 @@ const CoverPage: React.FC = () => {
                 <h2 className="text-heading font-semibold text-primary mb-4">Course & Project Details</h2>
                 
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="courseCode" className="text-sm font-medium">Course Code</Label>
-                    <Input
-                      id="courseCode"
-                      value={coverData.courseCode}
-                      onChange={(e) => updateCoverData('courseCode', e.target.value)}
-                      className="mt-1"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="courseCode" className="text-sm font-medium">Course Code</Label>
+                      <Input
+                        id="courseCode"
+                        value={coverData.courseCode}
+                        onChange={(e) => updateCoverData('courseCode', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-course-code"
+                        checked={visibility.courseCode}
+                        onCheckedChange={(checked) => updateVisibility('courseCode', checked as boolean)}
+                      />
+                      <Label htmlFor="show-course-code" className="text-sm">Show</Label>
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="courseTitle" className="text-sm font-medium">Course Title</Label>
-                    <Input
-                      id="courseTitle"
-                      value={coverData.courseTitle}
-                      onChange={(e) => updateCoverData('courseTitle', e.target.value)}
-                      className="mt-1"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="courseTitle" className="text-sm font-medium">Course Title</Label>
+                      <Input
+                        id="courseTitle"
+                        value={coverData.courseTitle}
+                        onChange={(e) => updateCoverData('courseTitle', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-course-title"
+                        checked={visibility.courseTitle}
+                        onCheckedChange={(checked) => updateVisibility('courseTitle', checked as boolean)}
+                      />
+                      <Label htmlFor="show-course-title" className="text-sm">Show</Label>
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="projectTitle" className="text-sm font-medium">Project Title</Label>
-                    <Input
-                      id="projectTitle"
-                      value={coverData.projectTitle}
-                      onChange={(e) => updateCoverData('projectTitle', e.target.value)}
-                      className="mt-1"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="projectTitle" className="text-sm font-medium">Project Title</Label>
+                      <Input
+                        id="projectTitle"
+                        value={coverData.projectTitle}
+                        onChange={(e) => updateCoverData('projectTitle', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-project-title"
+                        checked={visibility.projectTitle}
+                        onCheckedChange={(checked) => updateVisibility('projectTitle', checked as boolean)}
+                      />
+                      <Label htmlFor="show-project-title" className="text-sm">Show</Label>
+                    </div>
                   </div>
 
-                  <div>
-                    <Label htmlFor="submissionDate" className="text-sm font-medium">Submission Date</Label>
-                    <Input
-                      id="submissionDate"
-                      value={coverData.submissionDate}
-                      onChange={(e) => updateCoverData('submissionDate', e.target.value)}
-                      className="mt-1"
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="submissionDate" className="text-sm font-medium">Submission Date</Label>
+                      <Input
+                        id="submissionDate"
+                        value={coverData.submissionDate}
+                        onChange={(e) => updateCoverData('submissionDate', e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox
+                        id="show-submission-date"
+                        checked={visibility.submissionDate}
+                        onCheckedChange={(checked) => updateVisibility('submissionDate', checked as boolean)}
+                      />
+                      <Label htmlFor="show-submission-date" className="text-sm">Show</Label>
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -291,37 +402,77 @@ const CoverPage: React.FC = () => {
                   <div>
                     <h3 className="font-semibold text-accent mb-3">Submitted By</h3>
                     <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                        <Input
-                          value={coverData.submittedBy.name}
-                          onChange={(e) => updateCoverData('submittedBy.name', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                          <Input
+                            value={coverData.submittedBy.name}
+                            onChange={(e) => updateCoverData('submittedBy.name', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-by-name"
+                            checked={visibility.submittedByName}
+                            onCheckedChange={(checked) => updateVisibility('submittedByName', checked as boolean)}
+                          />
+                          <Label htmlFor="show-by-name" className="text-xs">Show</Label>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Student ID</Label>
-                        <Input
-                          value={coverData.submittedBy.id}
-                          onChange={(e) => updateCoverData('submittedBy.id', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Student ID</Label>
+                          <Input
+                            value={coverData.submittedBy.id}
+                            onChange={(e) => updateCoverData('submittedBy.id', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-by-id"
+                            checked={visibility.submittedById}
+                            onCheckedChange={(checked) => updateVisibility('submittedById', checked as boolean)}
+                          />
+                          <Label htmlFor="show-by-id" className="text-xs">Show</Label>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Section</Label>
-                        <Input
-                          value={coverData.submittedBy.section}
-                          onChange={(e) => updateCoverData('submittedBy.section', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Section</Label>
+                          <Input
+                            value={coverData.submittedBy.section}
+                            onChange={(e) => updateCoverData('submittedBy.section', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-by-section"
+                            checked={visibility.submittedBySection}
+                            onCheckedChange={(checked) => updateVisibility('submittedBySection', checked as boolean)}
+                          />
+                          <Label htmlFor="show-by-section" className="text-xs">Show</Label>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Program</Label>
-                        <Input
-                          value={coverData.submittedBy.program}
-                          onChange={(e) => updateCoverData('submittedBy.program', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Program</Label>
+                          <Input
+                            value={coverData.submittedBy.program}
+                            onChange={(e) => updateCoverData('submittedBy.program', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-by-program"
+                            checked={visibility.submittedByProgram}
+                            onCheckedChange={(checked) => updateVisibility('submittedByProgram', checked as boolean)}
+                          />
+                          <Label htmlFor="show-by-program" className="text-xs">Show</Label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -329,37 +480,77 @@ const CoverPage: React.FC = () => {
                   <div>
                     <h3 className="font-semibold text-accent mb-3">Submitted To</h3>
                     <div className="space-y-3">
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Name</Label>
-                        <Input
-                          value={coverData.submittedTo.name}
-                          onChange={(e) => updateCoverData('submittedTo.name', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                          <Input
+                            value={coverData.submittedTo.name}
+                            onChange={(e) => updateCoverData('submittedTo.name', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-to-name"
+                            checked={visibility.submittedToName}
+                            onCheckedChange={(checked) => updateVisibility('submittedToName', checked as boolean)}
+                          />
+                          <Label htmlFor="show-to-name" className="text-xs">Show</Label>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Designation</Label>
-                        <Input
-                          value={coverData.submittedTo.designation}
-                          onChange={(e) => updateCoverData('submittedTo.designation', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Designation</Label>
+                          <Input
+                            value={coverData.submittedTo.designation}
+                            onChange={(e) => updateCoverData('submittedTo.designation', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-to-designation"
+                            checked={visibility.submittedToDesignation}
+                            onCheckedChange={(checked) => updateVisibility('submittedToDesignation', checked as boolean)}
+                          />
+                          <Label htmlFor="show-to-designation" className="text-xs">Show</Label>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Department</Label>
-                        <Input
-                          value={coverData.submittedTo.department}
-                          onChange={(e) => updateCoverData('submittedTo.department', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">Department</Label>
+                          <Input
+                            value={coverData.submittedTo.department}
+                            onChange={(e) => updateCoverData('submittedTo.department', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-to-department"
+                            checked={visibility.submittedToDepartment}
+                            onCheckedChange={(checked) => updateVisibility('submittedToDepartment', checked as boolean)}
+                          />
+                          <Label htmlFor="show-to-department" className="text-xs">Show</Label>
+                        </div>
                       </div>
-                      <div>
-                        <Label className="text-xs font-medium text-muted-foreground">University</Label>
-                        <Input
-                          value={coverData.submittedTo.university}
-                          onChange={(e) => updateCoverData('submittedTo.university', e.target.value)}
-                          className="mt-1"
-                        />
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <Label className="text-xs font-medium text-muted-foreground">University</Label>
+                          <Input
+                            value={coverData.submittedTo.university}
+                            onChange={(e) => updateCoverData('submittedTo.university', e.target.value)}
+                            className="mt-1"
+                          />
+                        </div>
+                        <div className="flex items-center space-x-1 mt-4">
+                          <Checkbox
+                            id="show-to-university"
+                            checked={visibility.submittedToUniversity}
+                            onCheckedChange={(checked) => updateVisibility('submittedToUniversity', checked as boolean)}
+                          />
+                          <Label htmlFor="show-to-university" className="text-xs">Show</Label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -422,11 +613,13 @@ const CoverPage: React.FC = () => {
                     {/* Header Section */}
                     <div className="text-center space-y-6">
                       <div>
-                        <h1 className={`${coverData.styles.fontSize.title} font-bold ${coverData.styles.primaryColor} tracking-wide`}>
-                          {coverData.universityName}
-                        </h1>
+                        {visibility.universityName && (
+                          <h1 className={`${coverData.styles.fontSize.title} font-bold text-primary tracking-wide`}>
+                            {coverData.universityName}
+                          </h1>
+                        )}
                         
-                        {coverData.logoUrl && (
+                        {visibility.logo && coverData.logoUrl && (
                           <div className="flex justify-center my-6">
                             <img 
                               src={coverData.logoUrl} 
@@ -442,84 +635,110 @@ const CoverPage: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="border-b-2 border-primary/20 pb-4">
-                        <h2 className={`${coverData.styles.fontSize.heading} font-semibold ${coverData.styles.accentColor} uppercase tracking-wider`}>
-                          {coverData.documentType}
-                        </h2>
-                      </div>
+                      {visibility.documentType && (
+                        <div className="border-b-2 border-primary/20 pb-4">
+                          <h2 className={`${coverData.styles.fontSize.heading} font-semibold text-accent uppercase tracking-wider`}>
+                            {coverData.documentType}
+                          </h2>
+                        </div>
+                      )}
                     </div>
 
                     {/* Middle Section */}
                     <div className="space-y-8 flex-1 flex flex-col justify-center">
                       <div className="text-center space-y-4">
                         <div>
-                          <p className={`${coverData.styles.fontSize.body} text-muted-foreground font-medium`}>
-                            Course Code: <span className="text-foreground font-semibold">{coverData.courseCode}</span>
-                          </p>
-                          <p className={`${coverData.styles.fontSize.body} text-muted-foreground font-medium mt-1`}>
-                            Course Title: <span className="text-foreground font-semibold">{coverData.courseTitle}</span>
-                          </p>
+                          {visibility.courseCode && (
+                            <p className={`${coverData.styles.fontSize.body} text-muted-foreground font-medium`}>
+                              Course Code: <span className="text-foreground font-semibold">{coverData.courseCode}</span>
+                            </p>
+                          )}
+                          {visibility.courseTitle && (
+                            <p className={`${coverData.styles.fontSize.body} text-muted-foreground font-medium mt-1`}>
+                              Course Title: <span className="text-foreground font-semibold">{coverData.courseTitle}</span>
+                            </p>
+                          )}
                         </div>
                         
-                        <div className="py-6">
-                          <h3 className={`${coverData.styles.fontSize.heading} font-bold ${coverData.styles.primaryColor} leading-tight`}>
-                            {coverData.projectTitle}
-                          </h3>
-                        </div>
+                        {visibility.projectTitle && (
+                          <div className="py-6">
+                            <h3 className={`${coverData.styles.fontSize.heading} font-bold text-primary leading-tight`}>
+                              {coverData.projectTitle}
+                            </h3>
+                          </div>
+                        )}
                       </div>
 
                       <Separator className="my-8" />
 
-                      {/* Two-column layout for submission info */}
-                      <div className="grid grid-cols-2 gap-8">
-                        <div className="text-left">
-                          <h4 className={`${coverData.styles.fontSize.body} font-bold ${coverData.styles.accentColor} mb-3 pb-1 border-b border-primary/30`}>
+                      {/* Two-column layout for submission info with table borders */}
+                      <div className="grid grid-cols-2 gap-0 border border-primary/30">
+                        <div className="text-left p-4 border-r border-primary/30">
+                          <h4 className={`${coverData.styles.fontSize.body} font-bold text-accent mb-3 pb-1 border-b border-primary/30`}>
                             Submitted By:
                           </h4>
                           <div className="space-y-1">
-                            <p className={`${coverData.styles.fontSize.body} font-semibold text-foreground`}>
-                              {coverData.submittedBy.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              ID: {coverData.submittedBy.id}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              Section: {coverData.submittedBy.section}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {coverData.submittedBy.program}
-                            </p>
+                            {visibility.submittedByName && (
+                              <p className={`${coverData.styles.fontSize.body} font-semibold text-foreground`}>
+                                {coverData.submittedBy.name}
+                              </p>
+                            )}
+                            {visibility.submittedById && (
+                              <p className="text-sm text-muted-foreground">
+                                ID: {coverData.submittedBy.id}
+                              </p>
+                            )}
+                            {visibility.submittedBySection && (
+                              <p className="text-sm text-muted-foreground">
+                                Section: {coverData.submittedBy.section}
+                              </p>
+                            )}
+                            {visibility.submittedByProgram && (
+                              <p className="text-sm text-muted-foreground">
+                                {coverData.submittedBy.program}
+                              </p>
+                            )}
                           </div>
                         </div>
 
-                        <div className="text-left">
-                          <h4 className={`${coverData.styles.fontSize.body} font-bold ${coverData.styles.accentColor} mb-3 pb-1 border-b border-primary/30`}>
+                        <div className="text-left p-4">
+                          <h4 className={`${coverData.styles.fontSize.body} font-bold text-accent mb-3 pb-1 border-b border-primary/30`}>
                             Submitted To:
                           </h4>
                           <div className="space-y-1">
-                            <p className={`${coverData.styles.fontSize.body} font-semibold text-foreground`}>
-                              {coverData.submittedTo.name}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {coverData.submittedTo.designation}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {coverData.submittedTo.department}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {coverData.submittedTo.university}
-                            </p>
+                            {visibility.submittedToName && (
+                              <p className={`${coverData.styles.fontSize.body} font-semibold text-foreground`}>
+                                {coverData.submittedTo.name}
+                              </p>
+                            )}
+                            {visibility.submittedToDesignation && (
+                              <p className="text-sm text-muted-foreground">
+                                {coverData.submittedTo.designation}
+                              </p>
+                            )}
+                            {visibility.submittedToDepartment && (
+                              <p className="text-sm text-muted-foreground">
+                                {coverData.submittedTo.department}
+                              </p>
+                            )}
+                            {visibility.submittedToUniversity && (
+                              <p className="text-sm text-muted-foreground">
+                                {coverData.submittedTo.university}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Footer Section */}
-                    <div className="text-center pt-8 border-t border-primary/20">
-                      <p className={`${coverData.styles.fontSize.body} font-semibold ${coverData.styles.primaryColor}`}>
-                        Submission Date: {coverData.submissionDate}
-                      </p>
-                    </div>
+                    {visibility.submissionDate && (
+                      <div className="text-center pt-8 border-t border-primary/20">
+                        <p className={`${coverData.styles.fontSize.body} font-semibold text-primary`}>
+                          Submission Date: {coverData.submissionDate}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
