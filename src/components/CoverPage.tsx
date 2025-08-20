@@ -6,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Download, FileImage, Camera } from 'lucide-react';
+import { Download, FileImage, Camera, Palette } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import universityLogo from '@/assets/university-logo.png';
+import { designTemplates, getTemplateById, type DesignTemplate } from './DesignTemplates';
 
 export interface CoverPageData {
   universityName: string;
@@ -66,6 +67,9 @@ export interface VisibilityState {
 const CoverPage: React.FC = () => {
   const previewRef = useRef<HTMLDivElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('classic-1');
+  const [currentTemplate, setCurrentTemplate] = useState<DesignTemplate>(designTemplates[0]);
   
   const [coverData, setCoverData] = useState<CoverPageData>({
     universityName: 'University of Excellence',
@@ -139,6 +143,24 @@ const CoverPage: React.FC = () => {
     setVisibility(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleTemplateChange = (templateId: string) => {
+    const template = getTemplateById(templateId);
+    if (template) {
+      setSelectedTemplate(templateId);
+      setCurrentTemplate(template);
+      setCoverData(prev => ({
+        ...prev,
+        styles: {
+          ...prev.styles,
+          fontSize: template.styles.fontSize,
+          fontFamily: template.styles.fontFamily,
+          primaryColor: template.styles.primaryColor,
+          accentColor: template.styles.accentColor
+        }
+      }));
+    }
+  };
+
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -198,6 +220,46 @@ const CoverPage: React.FC = () => {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Editor Panel */}
           <div className="space-y-6">
+            {/* Template Selection */}
+            <Card className="shadow-professional">
+              <CardContent className="p-6">
+                <h2 className="text-heading font-semibold text-primary mb-4 flex items-center gap-2">
+                  <Palette className="w-5 h-5" />
+                  Design Templates
+                </h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="template-select" className="text-sm font-medium text-foreground">Choose Template</Label>
+                    <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {['Classic', 'Modern', 'Creative', 'Professional', 'Minimalist'].map(category => (
+                          <div key={category}>
+                            <div className="px-2 py-1 text-xs font-semibold text-foreground bg-muted">{category}</div>
+                            {designTemplates
+                              .filter(t => t.category === category)
+                              .map(template => (
+                                <SelectItem key={template.id} value={template.id}>
+                                  {template.name}
+                                </SelectItem>
+                              ))
+                            }
+                          </div>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="text-xs text-foreground bg-muted/50 p-3 rounded">
+                    <strong>Current:</strong> {currentTemplate.name} - {currentTemplate.category}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="shadow-professional">
               <CardContent className="p-6">
                 <h2 className="text-heading font-semibold text-primary mb-4">Basic Information</h2>
@@ -205,7 +267,7 @@ const CoverPage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label htmlFor="universityName" className="text-sm font-medium">University Name</Label>
+                      <Label htmlFor="universityName" className="text-sm font-medium text-foreground">University Name</Label>
                       <Input
                         id="universityName"
                         value={coverData.universityName}
@@ -225,7 +287,7 @@ const CoverPage: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="logoWidth" className="text-sm font-medium">Logo Width (px)</Label>
+                      <Label htmlFor="logoWidth" className="text-sm font-medium text-foreground">Logo Width (px)</Label>
                       <Input
                         id="logoWidth"
                         type="number"
@@ -235,7 +297,7 @@ const CoverPage: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="logoHeight" className="text-sm font-medium">Logo Height (px)</Label>
+                      <Label htmlFor="logoHeight" className="text-sm font-medium text-foreground">Logo Height (px)</Label>
                       <Input
                         id="logoHeight"
                         type="number"
@@ -248,7 +310,7 @@ const CoverPage: React.FC = () => {
 
                   <div className="flex items-start gap-3">
                     <div className="flex-1">
-                      <Label className="text-sm font-medium">University Logo</Label>
+                      <Label className="text-sm font-medium text-foreground">University Logo</Label>
                       <div className="mt-1 flex gap-2">
                         <Input
                           ref={logoInputRef}
@@ -279,7 +341,7 @@ const CoverPage: React.FC = () => {
 
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label htmlFor="documentType" className="text-sm font-medium">Document Type</Label>
+                      <Label htmlFor="documentType" className="text-sm font-medium text-foreground">Document Type</Label>
                       <Select value={coverData.documentType} onValueChange={(value) => updateCoverData('documentType', value)}>
                         <SelectTrigger className="mt-1">
                           <SelectValue />
@@ -313,7 +375,7 @@ const CoverPage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label htmlFor="courseCode" className="text-sm font-medium">Course Code</Label>
+                      <Label htmlFor="courseCode" className="text-sm font-medium text-foreground">Course Code</Label>
                       <Input
                         id="courseCode"
                         value={coverData.courseCode}
@@ -333,7 +395,7 @@ const CoverPage: React.FC = () => {
 
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label htmlFor="courseTitle" className="text-sm font-medium">Course Title</Label>
+                      <Label htmlFor="courseTitle" className="text-sm font-medium text-foreground">Course Title</Label>
                       <Input
                         id="courseTitle"
                         value={coverData.courseTitle}
@@ -353,7 +415,7 @@ const CoverPage: React.FC = () => {
 
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label htmlFor="projectTitle" className="text-sm font-medium">Project Title</Label>
+                      <Label htmlFor="projectTitle" className="text-sm font-medium text-foreground">Project Title</Label>
                       <Input
                         id="projectTitle"
                         value={coverData.projectTitle}
@@ -373,7 +435,7 @@ const CoverPage: React.FC = () => {
 
                   <div className="flex items-center gap-3">
                     <div className="flex-1">
-                      <Label htmlFor="submissionDate" className="text-sm font-medium">Submission Date</Label>
+                      <Label htmlFor="submissionDate" className="text-sm font-medium text-foreground">Submission Date</Label>
                       <Input
                         id="submissionDate"
                         value={coverData.submissionDate}
@@ -398,13 +460,17 @@ const CoverPage: React.FC = () => {
               <CardContent className="p-6">
                 <h2 className="text-heading font-semibold text-primary mb-4">Student & Instructor Information</h2>
                 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold text-accent mb-3">Submitted By</h3>
+                <div className="space-y-6">
+                  {/* Student Information Section */}
+                  <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
+                    <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-primary rounded-full"></div>
+                      Student Information
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                          <Label className="text-xs font-medium text-foreground">Name</Label>
                           <Input
                             value={coverData.submittedBy.name}
                             onChange={(e) => updateCoverData('submittedBy.name', e.target.value)}
@@ -422,7 +488,7 @@ const CoverPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Student ID</Label>
+                          <Label className="text-xs font-medium text-foreground">Student ID</Label>
                           <Input
                             value={coverData.submittedBy.id}
                             onChange={(e) => updateCoverData('submittedBy.id', e.target.value)}
@@ -440,7 +506,7 @@ const CoverPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Section</Label>
+                          <Label className="text-xs font-medium text-foreground">Section</Label>
                           <Input
                             value={coverData.submittedBy.section}
                             onChange={(e) => updateCoverData('submittedBy.section', e.target.value)}
@@ -458,7 +524,7 @@ const CoverPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Program</Label>
+                          <Label className="text-xs font-medium text-foreground">Program</Label>
                           <Input
                             value={coverData.submittedBy.program}
                             onChange={(e) => updateCoverData('submittedBy.program', e.target.value)}
@@ -477,12 +543,16 @@ const CoverPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="font-semibold text-accent mb-3">Submitted To</h3>
+                  {/* Instructor Information Section */}
+                  <div className="border border-accent/20 rounded-lg p-4 bg-accent/5">
+                    <h3 className="font-semibold text-accent mb-3 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-accent rounded-full"></div>
+                      Instructor Information
+                    </h3>
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Name</Label>
+                          <Label className="text-xs font-medium text-foreground">Name</Label>
                           <Input
                             value={coverData.submittedTo.name}
                             onChange={(e) => updateCoverData('submittedTo.name', e.target.value)}
@@ -500,7 +570,7 @@ const CoverPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Designation</Label>
+                          <Label className="text-xs font-medium text-foreground">Designation</Label>
                           <Input
                             value={coverData.submittedTo.designation}
                             onChange={(e) => updateCoverData('submittedTo.designation', e.target.value)}
@@ -518,7 +588,7 @@ const CoverPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">Department</Label>
+                          <Label className="text-xs font-medium text-foreground">Department</Label>
                           <Input
                             value={coverData.submittedTo.department}
                             onChange={(e) => updateCoverData('submittedTo.department', e.target.value)}
@@ -536,7 +606,7 @@ const CoverPage: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <Label className="text-xs font-medium text-muted-foreground">University</Label>
+                          <Label className="text-xs font-medium text-foreground">University</Label>
                           <Input
                             value={coverData.submittedTo.university}
                             onChange={(e) => updateCoverData('submittedTo.university', e.target.value)}
@@ -635,13 +705,13 @@ const CoverPage: React.FC = () => {
                         )}
                       </div>
 
-                      {visibility.documentType && (
-                        <div className="border-b-2 border-primary/20 pb-4">
-                          <h2 className={`${coverData.styles.fontSize.heading} font-semibold text-accent uppercase tracking-wider`}>
-                            {coverData.documentType}
-                          </h2>
-                        </div>
-                      )}
+                        {visibility.documentType && (
+                          <div className="border-b-2 border-primary/20 pb-4">
+                            <h2 className={`${coverData.styles.fontSize.heading} font-semibold text-primary uppercase tracking-wider`}>
+                              {coverData.documentType}
+                            </h2>
+                          </div>
+                        )}
                     </div>
 
                     {/* Middle Section */}
@@ -649,13 +719,13 @@ const CoverPage: React.FC = () => {
                       <div className="text-center space-y-4">
                         <div>
                           {visibility.courseCode && (
-                            <p className={`${coverData.styles.fontSize.body} text-muted-foreground font-medium`}>
-                              Course Code: <span className="text-foreground font-semibold">{coverData.courseCode}</span>
+                            <p className={`${coverData.styles.fontSize.body} text-foreground font-medium`}>
+                              Course Code: <span className="text-primary font-semibold">{coverData.courseCode}</span>
                             </p>
                           )}
                           {visibility.courseTitle && (
-                            <p className={`${coverData.styles.fontSize.body} text-muted-foreground font-medium mt-1`}>
-                              Course Title: <span className="text-foreground font-semibold">{coverData.courseTitle}</span>
+                            <p className={`${coverData.styles.fontSize.body} text-foreground font-medium mt-1`}>
+                              Course Title: <span className="text-primary font-semibold">{coverData.courseTitle}</span>
                             </p>
                           )}
                         </div>
@@ -674,7 +744,7 @@ const CoverPage: React.FC = () => {
                       {/* Two-column layout for submission info with table borders */}
                       <div className="grid grid-cols-2 gap-0 border border-primary/30">
                         <div className="text-left p-4 border-r border-primary/30">
-                          <h4 className={`${coverData.styles.fontSize.body} font-bold text-accent mb-3 pb-1 border-b border-primary/30`}>
+                          <h4 className={`${coverData.styles.fontSize.body} font-bold text-primary mb-3 pb-1 border-b border-primary/30`}>
                             Submitted By:
                           </h4>
                           <div className="space-y-1">
@@ -684,17 +754,17 @@ const CoverPage: React.FC = () => {
                               </p>
                             )}
                             {visibility.submittedById && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-foreground">
                                 ID: {coverData.submittedBy.id}
                               </p>
                             )}
                             {visibility.submittedBySection && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-foreground">
                                 Section: {coverData.submittedBy.section}
                               </p>
                             )}
                             {visibility.submittedByProgram && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-foreground">
                                 {coverData.submittedBy.program}
                               </p>
                             )}
@@ -712,17 +782,17 @@ const CoverPage: React.FC = () => {
                               </p>
                             )}
                             {visibility.submittedToDesignation && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-foreground">
                                 {coverData.submittedTo.designation}
                               </p>
                             )}
                             {visibility.submittedToDepartment && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-foreground">
                                 {coverData.submittedTo.department}
                               </p>
                             )}
                             {visibility.submittedToUniversity && (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-foreground">
                                 {coverData.submittedTo.university}
                               </p>
                             )}
